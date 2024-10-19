@@ -20,7 +20,7 @@ interface TelegramWebApp {
 declare global {
   interface Window {
     Telegram?: {
-      WebApp: TelegramWebApp;
+      WebApp?: TelegramWebApp;
     };
   }
 }
@@ -35,9 +35,7 @@ export default function Home() {
     const checkAuthorization = async () => {
       try {
         // Check if it's a Telegram WebApp
-        const isTelegram = 'Telegram' in window && window.Telegram?.WebApp
-
-        if (isTelegram) {
+        if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
           const tg = window.Telegram.WebApp
           // Send user data to your backend
           const response = await fetch('/api/telegram-auth', {
@@ -97,23 +95,23 @@ export default function Home() {
     return <div className="flex justify-center items-center h-screen">Loading...</div>
   }
 
-  if (isAuthorized) {
-    return null // This will be briefly shown before redirecting
-  }
-
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-grow flex flex-col items-center justify-center p-4">
         <h1 className="text-4xl font-bold mb-6">Welcome to Swipe Joy</h1>
-        <p className="text-xl mb-8">Connect with Telegram communities</p>
+        <p className="text-xl mb-8 ">Connect with Telegram communities</p>
         {authError && (
-          <p className="text-red-500 mb-4">{authError}</p>
+          <p className="text-error mb-4">{authError}</p>
         )}
-        <Link href="/login" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-          Login
-        </Link>
+        {isAuthorized ? (
+          <p className="text-success mb-4">You are authorized. Redirecting to products...</p>
+        ) : (
+          <Link href="/login" className="bg-primary hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300">
+            Login
+          </Link>
+        )}
       </main>
-      <footer className="flex gap-6 flex-wrap items-center justify-center p-4">
+      <footer className="flex gap-6 flex-wrap items-center justify-center p-4 bg-accent-content shadow-md">
         <a
           className="flex items-center gap-2 text-secondary hover:underline hover:underline-offset-4"
           href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
@@ -121,7 +119,6 @@ export default function Home() {
           rel="noopener noreferrer"
         >
           <Image
-            aria-hidden
             src="https://nextjs.org/icons/file.svg"
             alt="File icon"
             width={16}
@@ -130,13 +127,12 @@ export default function Home() {
           Learn
         </a>
         <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          className="flex items-center gap-2 text-accent hover:underline hover:underline-offset-4"
           href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
           target="_blank"
           rel="noopener noreferrer"
         >
           <Image
-            aria-hidden
             src="https://nextjs.org/icons/window.svg"
             alt="Window icon"
             width={16}
@@ -145,13 +141,12 @@ export default function Home() {
           Examples
         </a>
         <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          className="flex items-center gap-2 text-neutral-content hover:underline hover:underline-offset-4"
           href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
           target="_blank"
           rel="noopener noreferrer"
         >
           <Image
-            aria-hidden
             src="https://nextjs.org/icons/globe.svg"
             alt="Globe icon"
             width={16}
