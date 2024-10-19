@@ -5,19 +5,40 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
 
+interface TelegramWebApp {
+  initDataUnsafe: {
+    user: {
+      id: number;
+      first_name: string;
+      last_name?: string;
+      username?: string;
+    };
+  };
+  startParam: string;
+}
+
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp: TelegramWebApp;
+    };
+  }
+}
+
 export default function Home() {
   const [isAuthorized, setIsAuthorized] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [authError, setAuthError] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
     const checkAuthorization = async () => {
       try {
         // Check if it's a Telegram WebApp
-        const isTelegram = 'Telegram' in window
-        
+        const isTelegram = 'Telegram' in window && window.Telegram?.WebApp
+
         if (isTelegram) {
-          const tg = (window as any).Telegram.WebApp
+          const tg = window.Telegram.WebApp
           // Send user data to your backend
           const response = await fetch('/api/telegram-auth', {
             method: 'POST',
@@ -32,6 +53,8 @@ export default function Home() {
           
           if (response.ok) {
             setIsAuthorized(true)
+          } else {
+            setAuthError('Telegram authentication failed')
           }
         } else {
           // For browser, you might want to check a stored token or session
@@ -45,11 +68,17 @@ export default function Home() {
             })
             if (response.ok) {
               setIsAuthorized(true)
+            } else {
+              setAuthError('Token verification failed')
             }
+          } else {
+            // No token found, user is not authorized
+            setAuthError('No authentication token found')
           }
         }
       } catch (error) {
         console.error('Authorization error:', error)
+        setAuthError('An error occurred during authorization')
       } finally {
         setIsLoading(false)
       }
@@ -77,6 +106,9 @@ export default function Home() {
       <main className="flex-grow flex flex-col items-center justify-center p-4">
         <h1 className="text-4xl font-bold mb-6">Welcome to Swipe Joy</h1>
         <p className="text-xl mb-8">Connect with Telegram communities</p>
+        {authError && (
+          <p className="text-red-500 mb-4">{authError}</p>
+        )}
         <Link href="/login" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
           Login
         </Link>

@@ -3,9 +3,8 @@ import ProductCard  from './components/ProductCard';
 
 export interface Product {
     id: number;
-    title: String;
+    title: string;
     albumId: number;
-    url: string;
     thumbnailUrl: string;
 }
 
