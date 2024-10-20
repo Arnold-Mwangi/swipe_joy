@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ThemeToggle } from './ThemeToggle';
 
 export default function Home() {
   const [isAuthorized, setIsAuthorized] = useState(false);
